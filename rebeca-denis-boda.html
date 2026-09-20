@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Rebeca &amp; Denis · 18.09.2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dorado:#C9A25D;
+    --dorado-suave:#DCC08A;
+    --crema:#F2E8D8;
+    --crema-clara:#FBF6EC;
+    --burdeos:#6B2737;
+    --negro:#1E1B18;
+    --linea:#E3D5BC;
+    --gris:#8a7a63;
+    --gris-claro:#b0a488;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--crema-clara);
+    color:var(--negro);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:540px;margin:0 auto;padding:0 20px 90px;}
+
+  header{
+    padding:36px 20px 22px;
+    text-align:center;
+    border-bottom:1px solid var(--linea);
+    background:
+      radial-gradient(120px 60px at 50% 0%, rgba(201,162,93,0.14), transparent 70%),
+      var(--crema-clara);
+  }
+  header .grooves{
+    width:46px;height:46px;margin:0 auto 14px;
+    border-radius:50%;
+    border:1.5px solid var(--dorado);
+    position:relative;
+  }
+  header .grooves::before,header .grooves::after{
+    content:'';position:absolute;border-radius:50%;border:1px solid var(--dorado-suave);
+  }
+  header .grooves::before{inset:8px;}
+  header .grooves::after{inset:17px;background:var(--burdeos);border:none;}
+  header h1{
+    font-family:'Playfair Display',serif;
+    font-weight:600;font-size:1.7rem;margin:0 0 4px;letter-spacing:0.01em;
+  }
+  header p{margin:0;color:var(--gris);font-size:0.92rem;letter-spacing:0.03em;}
+
+  .intro{padding:20px 4px 4px;font-size:0.95rem;line-height:1.55;color:#4a423a;}
+
+  .tabs{display:flex;gap:8px;margin:20px 0 18px;}
+  .tab-btn{
+    flex:1;padding:12px 6px;border-radius:10px;
+    border:1.5px solid var(--linea);background:#fff;
+    font-family:'Inter',sans-serif;font-weight:600;font-size:0.82rem;
+    color:#7d6e58;cursor:pointer;line-height:1.25;
+    transition:border-color .15s,color .15s,background .15s;
+  }
+  .tab-btn.active{border-color:var(--burdeos);color:var(--burdeos);background:var(--crema);}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  label.field-label{display:block;font-size:0.82rem;color:var(--gris);margin:0 0 6px;font-weight:500;}
+  input[type=text], input[type=search]{
+    width:100%;padding:12px 14px;border-radius:9px;
+    border:1.5px solid var(--linea);background:#fff;
+    font-family:'Inter',sans-serif;font-size:0.98rem;color:var(--negro);outline:none;
+  }
+  input[type=text]:focus, input[type=search]:focus{border-color:var(--dorado);}
+
+  .results{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
+  .result-row{
+    display:flex;align-items:center;gap:12px;width:100%;
+    padding:9px;border-radius:9px;border:1px solid var(--linea);
+    background:#fff;cursor:pointer;text-align:left;font-family:'Inter',sans-serif;
+  }
+  .result-row:active{background:var(--crema);}
+  .result-row img{width:44px;height:44px;border-radius:5px;object-fit:cover;flex-shrink:0;background:#eee;}
+  .result-row .meta{overflow:hidden;}
+  .result-row .t{font-weight:600;font-size:0.91rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .result-row .a{font-size:0.82rem;color:var(--gris);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  .status-line{font-size:0.85rem;color:var(--gris-claro);margin-top:10px;min-height:1.2em;line-height:1.4;}
+  .status-line.error{color:var(--burdeos);}
+
+  .manual-toggle{
+    background:none;border:none;color:var(--burdeos);font-size:0.86rem;
+    text-decoration:underline;padding:10px 0 0;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .manual-fields{margin-top:14px;display:none;flex-direction:column;gap:12px;}
+  .manual-fields.show{display:flex;}
+
+  .primary-btn{
+    width:100%;margin-top:16px;padding:13px;border-radius:9px;border:none;
+    background:var(--burdeos);color:var(--crema-clara);
+    font-family:'Inter',sans-serif;font-weight:600;font-size:0.98rem;cursor:pointer;
+  }
+  .primary-btn:disabled{opacity:0.45;cursor:default;}
+
+  .file-drop{
+    border:1.5px dashed var(--linea);border-radius:12px;padding:28px 16px;
+    text-align:center;color:var(--gris);font-size:0.92rem;cursor:pointer;background:#fff;
+  }
+  .file-drop.has-file{border-style:solid;border-color:var(--dorado);color:var(--negro);}
+
+  .photo-preview{margin-top:12px;width:100%;border-radius:10px;overflow:hidden;display:none;}
+  .photo-preview.show{display:block;}
+  .photo-preview img{width:100%;display:block;}
+
+  .name-field{margin-top:14px;}
+
+  .progress-track{
+    margin-top:14px;height:6px;border-radius:3px;background:var(--linea);
+    overflow:hidden;display:none;
+  }
+  .progress-track.show{display:block;}
+  .progress-bar{height:100%;width:0%;background:var(--dorado);transition:width .2s;}
+
+  .setup-note{
+    border:1px solid var(--linea);border-left:3px solid var(--burdeos);
+    border-radius:8px;padding:14px 16px;background:#fff;
+    font-size:0.88rem;line-height:1.55;color:#4a423a;
+  }
+  .setup-note strong{font-weight:600;}
+  .setup-note code{
+    background:var(--crema);padding:1px 5px;border-radius:3px;
+    font-size:0.85em;font-family:ui-monospace,monospace;
+  }
+
+  .feed-head{display:flex;align-items:baseline;justify-content:space-between;margin:34px 0 14px;}
+  .feed-head h2{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:600;margin:0;}
+  .feed-head button{
+    background:none;border:none;color:var(--burdeos);font-size:0.82rem;
+    cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;
+  }
+
+  .feed{display:flex;flex-direction:column;gap:10px;}
+  .empty-feed{
+    text-align:center;color:var(--gris-claro);font-size:0.9rem;padding:30px 10px;
+    border:1px dashed var(--linea);border-radius:10px;
+  }
+
+  .entry{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:10px;background:#fff;border:1px solid var(--linea);}
+  .entry .thumb{width:52px;height:52px;border-radius:7px;object-fit:cover;flex-shrink:0;background:#eee;}
+  .entry .thumb.song-thumb{
+    background:var(--negro);position:relative;
+  }
+  .entry .thumb.song-thumb::after{
+    content:'';position:absolute;inset:42%;border-radius:50%;background:var(--dorado);
+  }
+  .entry .body{flex:1;min-width:0;}
+  .entry .row1{font-weight:600;font-size:0.93rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .entry .row2{font-size:0.82rem;color:var(--gris);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .entry .row3{font-size:0.76rem;color:var(--gris-claro);margin-top:3px;}
+  .entry .full-photo{width:100%;border-radius:8px;margin-top:8px;display:block;}
+  .entry audio{width:100%;margin-top:8px;height:34px;}
+
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+    background:var(--negro);color:var(--crema-clara);
+    padding:10px 18px;border-radius:20px;font-size:0.86rem;
+    opacity:0;pointer-events:none;transition:opacity .25s;max-width:88%;text-align:center;z-index:50;
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="grooves"></div>
+  <h1>Rebeca &amp; Denis</h1>
+  <p>18 de septiembre de 2026</p>
+</header>
+
+<div class="wrap">
+
+  <p class="intro">Sumad las canciones que suenen hoy y las fotos que vayáis haciendo. Con todo esto os prepararemos un vinilo del día.</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="song">Buscar canción</button>
+    <button class="tab-btn" data-tab="own">Subir canción</button>
+    <button class="tab-btn" data-tab="photo">Subir foto</button>
+  </div>
+
+  <!-- ============ BUSCAR CANCIÓN ============ -->
+  <div class="panel active" id="panel-song">
+    <label class="field-label" for="song-search">Buscar canción</label>
+    <input type="search" id="song-search" placeholder="Título o artista…" autocomplete="off">
+    <div class="status-line" id="song-status"></div>
+    <div class="results" id="song-results"></div>
+
+    <button class="manual-toggle" id="manual-toggle">No la encuentro, añadirla a mano</button>
+    <div class="manual-fields" id="manual-fields">
+      <div>
+        <label class="field-label">Título</label>
+        <input type="text" id="manual-title" placeholder="Título de la canción">
+      </div>
+      <div>
+        <label class="field-label">Artista</label>
+        <input type="text" id="manual-artist" placeholder="Artista">
+      </div>
+    </div>
+
+    <div class="name-field">
+      <label class="field-label">Tu nombre (opcional)</label>
+      <input type="text" id="song-name" placeholder="¿Quién la añade?">
+    </div>
+
+    <button class="primary-btn" id="manual-add-btn" style="display:none;">Añadir canción</button>
+  </div>
+
+  <!-- ============ SUBIR CANCIÓN PROPIA ============ -->
+  <div class="panel" id="panel-own">
+    <div class="setup-note" id="own-setup-note" style="display:none;">
+      <strong>Falta configurar Cloudinary.</strong><br>
+      Abre este archivo y rellena <code>CLOUD_NAME</code> y <code>UPLOAD_PRESET</code>
+      en el bloque <code>CLOUDINARY</code> del principio del script. Los consigues creando
+      una cuenta gratuita en Cloudinary y un upload preset en modo <em>unsigned</em>.
+      Mientras tanto, esta pestaña no puede subir archivos.
+    </div>
+
+    <div id="own-form">
+      <label class="field-label">Archivo de audio</label>
+      <div class="file-drop" id="audio-drop">Toca para elegir un MP3 (máx. 25 MB)</div>
+      <input type="file" id="audio-input" accept="audio/*" style="display:none;">
+
+      <div style="margin-top:14px;">
+        <label class="field-label">Título</label>
+        <input type="text" id="own-title" placeholder="Título de la canción">
+      </div>
+      <div style="margin-top:12px;">
+        <label class="field-label">Artista (opcional)</label>
+        <input type="text" id="own-artist" placeholder="Artista">
+      </div>
+
+      <div class="name-field">
+        <label class="field-label">Tu nombre (opcional)</label>
+        <input type="text" id="own-name" placeholder="¿Quién la sube?">
+      </div>
+
+      <div class="progress-track" id="own-progress-track"><div class="progress-bar" id="own-progress-bar"></div></div>
+      <div class="status-line" id="own-status"></div>
+
+      <button class="primary-btn" id="own-add-btn" disabled>Subir canción</button>
+    </div>
+  </div>
+
+  <!-- ============ SUBIR FOTO ============ -->
+  <div class="panel" id="panel-photo">
+    <label class="field-label">Foto</label>
+    <div class="file-drop" id="photo-drop">Toca para elegir o hacer una foto</div>
+    <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;">
+    <div class="photo-preview" id="photo-preview"><img id="photo-preview-img" alt=""></div>
+    <div class="status-line" id="photo-status"></div>
+
+    <div class="name-field">
+      <label class="field-label">Tu nombre (opcional)</label>
+      <input type="text" id="photo-name" placeholder="¿Quién la sube?">
+    </div>
+
+    <button class="primary-btn" id="photo-add-btn" disabled>Subir foto</button>
+  </div>
+
+  <div class="feed-head">
+    <h2>Lo que lleváis hasta ahora</h2>
+    <button id="refresh-btn">Actualizar</button>
+  </div>
+  <div class="feed" id="feed">
+    <div class="empty-feed">Aún no hay nada. ¡Sé el primero!</div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================================
+   CONFIGURACIÓN — rellena estos dos valores antes de usar la subida de MP3.
+   Se obtienen en el panel de Cloudinary:
+     CLOUD_NAME    → Dashboard, arriba ("Cloud name")
+     UPLOAD_PRESET → Settings › Upload › Upload presets › modo "Unsigned"
+   Ninguno de los dos es secreto: pueden ir en el código del navegador.
+   ========================================================================== */
+const CLOUDINARY = {
+  CLOUD_NAME: 'oopxzmuh',
+  UPLOAD_PRESET: 'mi_space'
+};
+
+const MAX_AUDIO_BYTES = 25 * 1024 * 1024;   // 25 MB, igual que el límite del preset
+
+/* ====================== utilidades ====================== */
+const $ = (id) => document.getElementById(id);
+const toastEl = $('toast');
+let toastTimer = null;
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2800);
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function setStatus(el, msg, isError){
+  el.textContent = msg;
+  el.classList.toggle('error', !!isError);
+}
+function humanSize(bytes){
+  if(bytes < 1024*1024) return (bytes/1024).toFixed(0) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+function formatDuration(sec){
+  if(!sec || !isFinite(sec)) return '';
+  const m = Math.floor(sec/60), s = Math.round(sec%60);
+  return m + ':' + String(s).padStart(2,'0');
+}
+function newKey(){
+  return 'entry:' + Date.now() + '-' + Math.random().toString(36).slice(2,8);
+}
+async function saveEntry(entry){
+  const res = await window.storage.set(newKey(), JSON.stringify(entry), true);
+  if(!res) throw new Error('storage devolvió null');
+  return res;
+}
+
+/* ====================== pestañas ====================== */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    $('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ====================== nombre recordado ====================== */
+const nameInputs = ['song-name','own-name','photo-name'];
+(async function loadName(){
+  try{
+    const r = await window.storage.get('guest-name', false);
+    if(r && r.value) nameInputs.forEach(id => { $(id).value = r.value; });
+  }catch(e){ /* todavía no hay nombre guardado */ }
+})();
+function syncName(value){
+  nameInputs.forEach(id => { $(id).value = value; });
+  if(value){
+    window.storage.set('guest-name', value, false).catch(()=>{});
+  }
+}
+nameInputs.forEach(id => {
+  $(id).addEventListener('change', e => syncName(e.target.value.trim()));
+});
+
+/* ====================== 1. buscar canción (iTunes) ====================== */
+let searchTimer = null;
+
+$('song-search').addEventListener('input', (e) => {
+  const q = e.target.value.trim();
+  clearTimeout(searchTimer);
+  if(q.length < 2){ $('song-results').innerHTML = ''; setStatus($('song-status'),''); return; }
+  setStatus($('song-status'), 'Buscando…');
+  searchTimer = setTimeout(() => runSearch(q), 400);
+});
+
+async function runSearch(q){
+  try{
+    const url = 'https://itunes.apple.com/search?term=' + encodeURIComponent(q) + '&entity=song&limit=8';
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('respuesta ' + res.status);
+    const data = await res.json();
+    renderResults(data.results || []);
+  }catch(err){
+    setStatus($('song-status'), 'La búsqueda no responde. Añádela a mano aquí abajo.', true);
+    $('song-results').innerHTML = '';
+    $('manual-fields').classList.add('show');
+    $('manual-add-btn').style.display = 'block';
+  }
+}
+
+function renderResults(results){
+  const box = $('song-results');
+  box.innerHTML = '';
+  if(!results.length){
+    setStatus($('song-status'), 'Sin resultados. Añádela a mano aquí abajo.');
+    return;
+  }
+  setStatus($('song-status'), '');
+  results.forEach(track => {
+    const row = document.createElement('button');
+    row.className = 'result-row';
+    row.type = 'button';
+    row.innerHTML =
+      '<img src="' + (track.artworkUrl60 || '') + '" alt="">' +
+      '<div class="meta">' +
+        '<div class="t">' + escapeHtml(track.trackName || 'Sin título') + '</div>' +
+        '<div class="a">' + escapeHtml(track.artistName || '') + '</div>' +
+      '</div>';
+    row.addEventListener('click', () => addCatalogSong({
+      title: track.trackName,
+      artist: track.artistName,
+      artwork: track.artworkUrl100 || track.artworkUrl60 || ''
+    }));
+    box.appendChild(row);
+  });
+}
+
+$('manual-toggle').addEventListener('click', () => {
+  const shown = $('manual-fields').classList.toggle('show');
+  $('manual-add-btn').style.display = shown ? 'block' : 'none';
+});
+
+$('manual-add-btn').addEventListener('click', () => {
+  const title = $('manual-title').value.trim();
+  if(!title){ toast('Escribe al menos el título'); return; }
+  addCatalogSong({ title, artist: $('manual-artist').value.trim(), artwork: '' });
+  $('manual-title').value = '';
+  $('manual-artist').value = '';
+});
+
+async function addCatalogSong(track){
+  syncName($('song-name').value.trim());
+  try{
+    await saveEntry({
+      type: 'song',
+      title: track.title || 'Sin título',
+      artist: track.artist || '',
+      artwork: track.artwork || '',
+      by: $('song-name').value.trim(),
+      ts: Date.now()
+    });
+    toast('Canción añadida');
+    $('song-search').value = '';
+    $('song-results').innerHTML = '';
+    setStatus($('song-status'), '');
+    loadFeed();
+  }catch(e){
+    toast('No se pudo guardar. Inténtalo otra vez.');
+  }
+}
+
+/* ====================== 2. subir canción propia (Cloudinary) ====================== */
+const cloudinaryReady = Boolean(CLOUDINARY.CLOUD_NAME && CLOUDINARY.UPLOAD_PRESET);
+if(!cloudinaryReady){
+  $('own-setup-note').style.display = 'block';
+  $('own-form').style.display = 'none';
+}
+
+let pendingAudio = null;
+
+$('audio-drop').addEventListener('click', () => $('audio-input').click());
+
+$('audio-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+
+  if(!file.type.startsWith('audio/')){
+    setStatus($('own-status'), 'Ese archivo no es de audio. Elige un MP3, WAV o M4A.', true);
+    resetAudioPick();
+    return;
+  }
+  if(file.size > MAX_AUDIO_BYTES){
+    setStatus($('own-status'), 'Pesa ' + humanSize(file.size) + ' y el máximo son 25 MB. Prueba con otra versión del archivo.', true);
+    resetAudioPick();
+    return;
+  }
+
+  pendingAudio = file;
+  $('audio-drop').classList.add('has-file');
+  $('audio-drop').textContent = file.name + ' · ' + humanSize(file.size);
+  setStatus($('own-status'), '');
+  if(!$('own-title').value.trim()){
+    $('own-title').value = file.name.replace(/\.[^.]+$/, '');
+  }
+  refreshOwnButton();
+});
+
+function resetAudioPick(){
+  pendingAudio = null;
+  $('audio-input').value = '';
+  $('audio-drop').classList.remove('has-file');
+  $('audio-drop').textContent = 'Toca para elegir un MP3 (máx. 25 MB)';
+  refreshOwnButton();
+}
+
+function refreshOwnButton(){
+  $('own-add-btn').disabled = !(pendingAudio && $('own-title').value.trim());
+}
+$('own-title').addEventListener('input', refreshOwnButton);
+
+$('own-add-btn').addEventListener('click', () => {
+  if(!pendingAudio) return;
+  syncName($('own-name').value.trim());
+
+  const btn = $('own-add-btn');
+  btn.disabled = true;
+  btn.textContent = 'Subiendo…';
+  $('own-progress-track').classList.add('show');
+  $('own-progress-bar').style.width = '0%';
+  setStatus($('own-status'), 'Subiendo el archivo. No cierres esta pantalla.');
+
+  uploadAudio(pendingAudio,
+    (pct) => { $('own-progress-bar').style.width = pct + '%'; },
+    async (result) => {
+      try{
+        await saveEntry({
+          type: 'own-song',
+          title: $('own-title').value.trim(),
+          artist: $('own-artist').value.trim(),
+          audioUrl: result.secure_url,
+          duration: result.duration || 0,
+          by: $('own-name').value.trim(),
+          ts: Date.now()
+        });
+        toast('Canción subida');
+        resetAudioPick();
+        $('own-title').value = '';
+        $('own-artist').value = '';
+        setStatus($('own-status'), '');
+        loadFeed();
+      }catch(e){
+        setStatus($('own-status'), 'El archivo subió pero no se pudo guardar en el tablero. Vuelve a intentarlo.', true);
+      }finally{
+        finishOwnUpload();
+      }
+    },
+    (message) => {
+      setStatus($('own-status'), message, true);
+      finishOwnUpload();
+    }
+  );
+});
+
+function finishOwnUpload(){
+  const btn = $('own-add-btn');
+  btn.textContent = 'Subir canción';
+  $('own-progress-track').classList.remove('show');
+  $('own-progress-bar').style.width = '0%';
+  refreshOwnButton();
+}
+
+function uploadAudio(file, onProgress, onSuccess, onError){
+  const form = new FormData();
+  form.append('file', file);
+  form.append('upload_preset', CLOUDINARY.UPLOAD_PRESET);
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + CLOUDINARY.CLOUD_NAME + '/video/upload');
+
+  xhr.upload.onprogress = (e) => {
+    if(e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+  };
+
+  xhr.onload = () => {
+    let body = null;
+    try{ body = JSON.parse(xhr.responseText); }catch(e){}
+
+    if(xhr.status >= 200 && xhr.status < 300 && body && body.secure_url){
+      onSuccess(body);
+      return;
+    }
+    // Cloudinary devuelve el motivo en body.error.message — distinguirlo de un fallo de red
+    const detail = (body && body.error && body.error.message) ? body.error.message : '';
+    if(xhr.status === 400 || xhr.status === 401){
+      onError('Cloudinary rechazó la subida' + (detail ? ' (' + detail + ')' : '') +
+              '. Revisa que CLOUD_NAME y UPLOAD_PRESET sean correctos y que el preset esté en modo unsigned.');
+    }else{
+      onError('Error al subir (código ' + xhr.status + ')' + (detail ? ': ' + detail : '') + '. Inténtalo otra vez.');
+    }
+  };
+
+  xhr.onerror = () => onError('Sin conexión con Cloudinary. Comprueba el wifi y vuelve a intentarlo.');
+  xhr.ontimeout = () => onError('La subida tardó demasiado. Inténtalo otra vez.');
+
+  xhr.send(form);
+}
+
+/* ====================== 3. subir foto ====================== */
+let pendingPhotoDataUrl = null;
+
+$('photo-drop').addEventListener('click', () => $('photo-input').click());
+
+$('photo-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){
+    setStatus($('photo-status'), 'Ese archivo no es una imagen.', true);
+    return;
+  }
+  setStatus($('photo-status'), 'Preparando la foto…');
+  try{
+    pendingPhotoDataUrl = await compressImage(file, 1400, 0.72);
+    $('photo-preview-img').src = pendingPhotoDataUrl;
+    $('photo-preview').classList.add('show');
+    $('photo-drop').classList.add('has-file');
+    $('photo-drop').textContent = 'Foto lista — toca para cambiarla';
+    $('photo-add-btn').disabled = false;
+    setStatus($('photo-status'), '');
+  }catch(err){
+    setStatus($('photo-status'), 'No se pudo procesar esa imagen. Prueba con otra.', true);
+  }
+});
+
+function compressImage(file, maxDim, quality){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if(w > h && w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; }
+      else if(h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      let q = quality;
+      let dataUrl = canvas.toDataURL('image/jpeg', q);
+      while(dataUrl.length > 1400000 && q > 0.3){
+        q -= 0.15;
+        dataUrl = canvas.toDataURL('image/jpeg', q);
+      }
+      URL.revokeObjectURL(url);
+      resolve(dataUrl);
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+$('photo-add-btn').addEventListener('click', async () => {
+  if(!pendingPhotoDataUrl) return;
+  syncName($('photo-name').value.trim());
+  $('photo-add-btn').disabled = true;
+  setStatus($('photo-status'), 'Subiendo…');
+  try{
+    await saveEntry({
+      type: 'photo',
+      image: pendingPhotoDataUrl,
+      by: $('photo-name').value.trim(),
+      ts: Date.now()
+    });
+    toast('Foto subida');
+    pendingPhotoDataUrl = null;
+    $('photo-preview').classList.remove('show');
+    $('photo-drop').classList.remove('has-file');
+    $('photo-drop').textContent = 'Toca para elegir o hacer una foto';
+    $('photo-input').value = '';
+    setStatus($('photo-status'), '');
+    loadFeed();
+  }catch(e){
+    setStatus($('photo-status'), 'Esa foto pesa demasiado o hubo un error. Prueba con otra.', true);
+    $('photo-add-btn').disabled = false;
+  }
+});
+
+/* ====================== feed ====================== */
+async function loadFeed(){
+  const feedEl = $('feed');
+  try{
+    const listRes = await window.storage.list('entry:', true);
+    const keys = (listRes && listRes.keys) ? listRes.keys : [];
+    if(!keys.length){
+      feedEl.innerHTML = '<div class="empty-feed">Aún no hay nada. ¡Sé el primero!</div>';
+      return;
+    }
+    const sorted = keys.slice().sort().reverse();
+    const items = [];
+    for(const k of sorted){
+      try{
+        const r = await window.storage.get(k, true);
+        if(r && r.value) items.push(JSON.parse(r.value));
+      }catch(e){ /* entrada ilegible, se salta */ }
+    }
+    if(!items.length){
+      feedEl.innerHTML = '<div class="empty-feed">Aún no hay nada. ¡Sé el primero!</div>';
+      return;
+    }
+    feedEl.innerHTML = '';
+    items.forEach(it => feedEl.appendChild(renderEntry(it)));
+  }catch(e){
+    feedEl.innerHTML = '<div class="empty-feed">No se pudo cargar. Toca «Actualizar».</div>';
+  }
+}
+
+function renderEntry(it){
+  const div = document.createElement('div');
+  div.className = 'entry';
+  const time = new Date(it.ts).toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+  const byLine = it.by ? (' · ' + escapeHtml(it.by)) : '';
+
+  if(it.type === 'song'){
+    div.innerHTML =
+      (it.artwork
+        ? '<img class="thumb" src="' + it.artwork + '" alt="">'
+        : '<div class="thumb song-thumb"></div>') +
+      '<div class="body">' +
+        '<div class="row1">' + escapeHtml(it.title) + '</div>' +
+        '<div class="row2">' + escapeHtml(it.artist || '') + '</div>' +
+        '<div class="row3">' + time + byLine + '</div>' +
+      '</div>';
+
+  }else if(it.type === 'own-song'){
+    const dur = formatDuration(it.duration);
+    div.innerHTML =
+      '<div class="thumb song-thumb"></div>' +
+      '<div class="body">' +
+        '<div class="row1">' + escapeHtml(it.title) + '</div>' +
+        '<div class="row2">' + escapeHtml(it.artist || 'Archivo propio') + '</div>' +
+        '<div class="row3">' + time + byLine + (dur ? ' · ' + dur : '') + '</div>' +
+        '<audio controls preload="none" src="' + escapeHtml(it.audioUrl) + '"></audio>' +
+      '</div>';
+
+  }else{
+    div.innerHTML =
+      '<div class="body" style="width:100%;">' +
+        '<div class="row3" style="margin-bottom:6px;">' + time + byLine + '</div>' +
+        '<img class="full-photo" src="' + it.image + '" alt="">' +
+      '</div>';
+  }
+  return div;
+}
+
+$('refresh-btn').addEventListener('click', loadFeed);
+loadFeed();
+setInterval(loadFeed, 10000);
+</script>
+</body>
+</html>
