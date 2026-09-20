@@ -324,13 +324,14 @@ function formatDuration(sec){
   const m = Math.floor(sec/60), s = Math.round(sec%60);
   return m + ':' + String(s).padStart(2,'0');
 }
-function newKey(){
-  return 'entry:' + Date.now() + '-' + Math.random().toString(36).slice(2,8);
-}
 async function saveEntry(entry){
-  const res = await window.storage.set(newKey(), JSON.stringify(entry), true);
-  if(!res) throw new Error('storage devolvió null');
-  return res;
+  const res = await fetch('/api/entries', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(entry)
+  });
+  if(!res.ok) throw new Error('respuesta ' + res.status);
+  return res.json();
 }
 
 /* ====================== pestañas ====================== */
@@ -345,16 +346,16 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
 /* ====================== nombre recordado ====================== */
 const nameInputs = ['song-name','own-name','photo-name'];
-(async function loadName(){
+(function loadName(){
   try{
-    const r = await window.storage.get('guest-name', false);
-    if(r && r.value) nameInputs.forEach(id => { $(id).value = r.value; });
-  }catch(e){ /* todavía no hay nombre guardado */ }
+    const saved = localStorage.getItem('guest-name');
+    if(saved) nameInputs.forEach(id => { $(id).value = saved; });
+  }catch(e){ /* localStorage no disponible */ }
 })();
 function syncName(value){
   nameInputs.forEach(id => { $(id).value = value; });
   if(value){
-    window.storage.set('guest-name', value, false).catch(()=>{});
+    try{ localStorage.setItem('guest-name', value); }catch(e){}
   }
 }
 nameInputs.forEach(id => {
@@ -665,20 +666,10 @@ $('photo-add-btn').addEventListener('click', async () => {
 async function loadFeed(){
   const feedEl = $('feed');
   try{
-    const listRes = await window.storage.list('entry:', true);
-    const keys = (listRes && listRes.keys) ? listRes.keys : [];
-    if(!keys.length){
-      feedEl.innerHTML = '<div class="empty-feed">Aún no hay nada. ¡Sé el primero!</div>';
-      return;
-    }
-    const sorted = keys.slice().sort().reverse();
-    const items = [];
-    for(const k of sorted){
-      try{
-        const r = await window.storage.get(k, true);
-        if(r && r.value) items.push(JSON.parse(r.value));
-      }catch(e){ /* entrada ilegible, se salta */ }
-    }
+    const res = await fetch('/api/entries');
+    if(!res.ok) throw new Error('respuesta ' + res.status);
+    const data = await res.json();
+    const items = data.entries || [];
     if(!items.length){
       feedEl.innerHTML = '<div class="empty-feed">Aún no hay nada. ¡Sé el primero!</div>';
       return;
